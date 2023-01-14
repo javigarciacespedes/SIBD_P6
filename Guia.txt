@@ -1,0 +1,71 @@
+P5.- NOSQL REPLICATION AND SHARDING
+
+1.-
+EN UNA TERMINAL(DEJARLA EN EJECUCIÓNN):
+mongod --configsvr --replSet config_servers --dbpath /home/upm/Desktop/data_patients/config --port 27001
+
+EN OTRA TERMINAL:
+mongosh --host localhost:27001
+rs.initiate()
+
+2.-
+EN CUATRO TERMINALES (DEJARLAS EN EJECUCIÓN):
+mongod --shardsvr --replSet shard_servers_1 --dbpath /home/upm/Desktop/data_patients/shard1_1 --port 27002
+mongod --shardsvr --replSet shard_servers_1 --dbpath /home/upm/Desktop/data_patients/shard1_2 --port 27003
+mongod --shardsvr --replSet shard_servers_2 --dbpath /home/upm/Desktop/data_patients/shard2_1 --port 27004
+mongod --shardsvr --replSet shard_servers_2 --dbpath /home/upm/Desktop/data_patients/shard2_2 --port 27005
+
+EN OTRA TERMINAL:
+mongosh --host localhost:27002
+rs.initiate({_id : "shard_servers_1" ,members: [{ _id : 0, host : "localhost:27002", priority: 900 },{ _id : 1, host : "localhost:27003", priority:700 }]})
+
+SALIR DE MONGOSH Y:
+mongosh --host localhost:27004
+rs.initiate({_id : "shard_servers_2" ,members: [{ _id : 0, host : "localhost:27004", priority: 600 },{ _id : 1, host : "localhost:27005", priority:300 }]})
+
+3.- 
+EN UNA TERMINAL: 
+mongos --configdb config_servers/localhost:27001 --port 27006
+
+4.-
+EN OTRA TERMINAL:
+mongosh --host localhost:27006
+sh.addShard("shard_servers_1/localhost:27002,localhost:27003")
+sh.addShard("shard_servers_2/localhost:27004,localhost:27005")
+use bio_bbdd
+db.createCollection("patients")
+sh.enableSharding("bio_bbdd")
+sh.shardCollection("bio_bbdd.patients",{dni: "hashed" })
+
+5.-
+EN OTRA TERMINAL:
+"Vamos al directorio donde está la p5"
+npm install
+npm run seed
+
+6.-
+mongosh --host localhost:27001
+use bio_bbdd
+db.patients.getShardDistribution()
+*HACER CAPTURA*
+
+7.-
+Cambiar en controlles/patient.js linea 7: 'mongodb://localhost:27006/bio_bbdd'
+    await mongoose.connect('mongodb://localhost:27006/bio_bbdd',{ useNewUrlParser: true, useUnifiedTopology: true })
+    
+9.-
+En la web insertar los datos requeridos
+
+11.-
+En el directorio data_patients
+mkdir shard1_3
+
+En una terminal:
+mongod --dbpath /home/upm/Desktop/data_patients/shard1_3 --replSet shard_servers_1 --port 27007 
+
+En otra terminal: 
+mongosh --host localhost:27001
+db.adminCommand({"setDefaultRWConcern" : 1,"defaultWriteConcern" : {"w" : 1}})
+exit
+mongosh --host localhost:27002
+rs.addArb("localhost:27007")

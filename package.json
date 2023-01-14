@@ -1,0 +1,44 @@
+{
+	"name": "nosql_practica5",
+	"version": "0.0.0",
+	"description": "autoCOREctor de la asignatura de BBDD (UPM)",
+	"disableHashCheck": true,
+	"capturesFolder": "miscapturas",
+	"capturesNumber": 1,    
+	"keywords": [
+			"BBDD",
+			"NoSQL",
+			"self-assessment"
+	],
+	"author": "anmunoz",
+	"license": "GNU",
+	"info": {
+			"githubURL": "BBDD-ETSIT/nosql_practica5_sibd",
+			"serverUrl": "https://aat.dit.upm.es/",
+			"courseId": "903",
+			"assignmentId": "7855"
+	},
+	"dependencies": {
+			"mongoose": "^6.7.1",
+			"autocorector": "^3.1.4",
+			"body-parser": "~1.12.4",
+			"ejs": "^3.0.1",
+			"express": "~4.13.1",
+			"method-override": "^2.3.1",
+			"mocha": "^7.0.1",
+			"mongoose-data-seed": "^2.1.6",
+			"nodemon": "^2.0.2",
+			"popper.js": "^1.16.1",
+			"chai": "^4.2.0"		
+	},
+	"scripts": {
+			"start": "node rest_server.js",
+			"seed": "md-seed run",
+			"test": "npx autocorector",
+			"upload": "npx autocorector -u",
+			"test:old": "nodemon --exec 'mocha -R min'"
+	},
+	"mdSeed": {
+			"seedersFolder": "./seeders"
+	}
+}
